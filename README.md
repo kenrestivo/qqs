@@ -22,9 +22,10 @@ A workflow for cemerick's [friend authentication system](http://github.com/cemer
   {:workflows
     [(qqs/workflow :credential-fn somewhere/step2-creds)]
 ;; ...
+  :login-failure-handler you-must-have-something-here-or-you-will-NPE
 ```
 
-* Be sure to hit the step2-uri page with the domain, i.e. "/step2?domain=mydomain.com", otherwise it will login-failure on you.
+* Be sure to hit the step2-uri page with the domain, i.e. "/step2?domain=mydomain.com", and to use an actual Google Apps account (not Gmail), otherwise it will login-failure on you.
 
 
 ## Status
