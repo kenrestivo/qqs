@@ -2,5 +2,8 @@ TODO for QQS
 
 * TODO build a non-snapshot release of google step2 java lib, so I can make this a release
 * TODO put step2 on clojars or somewhere more permanent
-* TODO test suite
+* TODO throw an exception if the .getAuthResultType is not success
+* TODO convince cemerick to accept https://github.com/cemerick/friend/pull/11
+* TODO test suite of some kind?
+** hard to do with something so dependent on external service, accounts, logins
 

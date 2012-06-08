@@ -124,6 +124,8 @@
        (if-let [auth-map
                 (handle-return (assoc request :params params) step2-config)]
          (vary-meta auth-map merge {::friend/workflow ::step2
+                                    ;; for proposed friend cleanup:
+                                    ;; https://github.com/cemerick/friend/pull/11
                                     :session (dissoc session ::step2-disc)
                                     :type ::friend/auth})
          ((or (gets :login-failure-handler step2-config
