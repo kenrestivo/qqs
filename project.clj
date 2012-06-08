@@ -8,7 +8,9 @@
                  ;; TODO: build a non-snapshot release so I can make this a release
                  [com.google.step2/step2-consumer "1-SNAPSHOT"]
                  ;; to force around a bug in httpclient 4.1.x [0]
-                 [org.apache.httpcomponents/httpclient "[4.2-beta1]"]]
+                 [org.apache.httpcomponents/httpclient "[4.2-beta1]"]
+                 ;; needed in some cases to force over clj-http if included
+                 [org.apache.httpcomponents/httpcore "[4.2-beta1]"]]
   ;; TODO: put step2 on clojars or somewhere more permanent
   :repositories {"kens" "http://www.restivo.org/mvn/"})
 
