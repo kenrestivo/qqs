@@ -26,7 +26,7 @@
 
 
 
-;;; apparently connmanager must be persistent and stateful throughout life of servlet. 
+;;;  ConsumerManager must be persistent and stateful throughout life of servlet?
 (def con-helper
   (ConsumerHelper.
    (ConsumerManager.)  
