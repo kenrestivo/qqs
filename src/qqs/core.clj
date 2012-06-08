@@ -86,29 +86,44 @@
        :last-name (str (.getAxFetchAttributeValue  arh "lastName"))))))
        
 
+;; this feels like a hack. exception handling needs more thought.
+(defmacro wrap-failure
+  [request step2-config & body]
+  `(try
+     ~@body 
+     (catch Exception e#
+       (.printStackTrace e#)
+       ((gets :login-failure-handler ~step2-config
+              (::friend/auth-config ~request))
+        ~request))))
+      
 
-(defn handle-return [{:keys [params session] :as req} step2-config]
+(defn handle-return [{:keys [params session] :as request} step2-config]
   (let [di (::step2-disc session)
-        return-url (#'friend/original-url req)
+        return-url (#'friend/original-url request)
         plist (ParameterList.
                (clojure.walk/stringify-keys params))
         arh (.verify con-helper return-url plist di)
         credentials (build-credentials arh)]
-    (or ((gets :credential-fn step2-config (::friend/auth-config req))
+    (or ((gets :credential-fn step2-config (::friend/auth-config request))
          credentials)
-        ((gets :login-failure-handler step2-config (::friend/auth-config req))
-         req))))
+        ((gets :login-failure-handler step2-config (::friend/auth-config request))
+         request))))
+
 
 
 (defn- handle-init
-  [domain {:keys [session] :as request}]
-  (let [domain (string/replace domain #"(.*[/@])?(.+)" "$2")
-        return-url (#'friend/original-url
-                    (assoc request :query-string
-                           (str (name return-key) "=1")))
-        auth-req (gen-auth-url domain return-url)]
-    (assoc (ring.util.response/redirect (:url auth-req))
-      :session (assoc session ::step2-disc (:di auth-req)))))
+  [domain step2-config {:keys [session] :as request}]
+  (wrap-failure
+   request step2-config
+   (let [domain (string/replace domain #"(.*[/@])?(.+)" "$2")
+         return-url (#'friend/original-url
+                     (assoc request :query-string
+                            (str (name return-key) "=1")))
+         auth-req (gen-auth-url domain return-url)]
+     (assoc (ring.util.response/redirect (:url auth-req))
+       :session (assoc session ::step2-disc (:di auth-req))))))
+
 
 
 
@@ -122,25 +137,21 @@
     (when (= uri step2-uri)
       (cond
        (contains? params domain-param)
-       (try
-         (handle-init (domain-param params) request)
-         (catch Exception e
-           (.printStackTrace e)
-           (ring.util.response/redirect
-            (-> request ::friend/auth-config :unauthorized-uri))))
+       (handle-init (domain-param params) step2-config request)
        (contains? params return-key)
-       (if-let [auth-map
-                (handle-return (assoc request :params params) step2-config)]
-         (vary-meta auth-map merge {::friend/workflow ::step2
-                                    ;; for proposed friend cleanup:
-                                    ;; https://github.com/cemerick/friend/pull/11
-                                    :session (dissoc session ::step2-disc)
-                                    :type ::friend/auth})
-         ((or (gets :login-failure-handler step2-config
-                    (::friend/auth-config request))
-              #'workflows/interactive-login-redirect)
-          (update-in request [::friend/auth-config] merge step2-config)))
-       (contains? params domain-param) (handle-init (domain-param params) request)
+       (wrap-failure
+        request step2-config
+        (if-let [auth-map
+                 (handle-return (assoc request :params params) step2-config)]
+          (vary-meta auth-map merge {::friend/workflow ::step2
+                                     ;; for proposed friend cleanup:
+                                     ;; https://github.com/cemerick/friend/pull/11
+                                     :session (dissoc session ::step2-disc)
+                                     :type ::friend/auth})
+          ((or (gets :login-failure-handler step2-config
+                     (::friend/auth-config request))
+               #'workflows/interactive-login-redirect)
+           (update-in request [::friend/auth-config] merge step2-config))))
        ;; TODO correct response code?
        :else (login-failure-handler request)))))
        
