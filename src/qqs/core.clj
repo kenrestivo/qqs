@@ -6,7 +6,7 @@
   (:import [com.google.step2
             AuthRequestHelper ConsumerHelper Step2]
            [com.google.step2.discovery
-            IdpIdentifier Discovery2 LegacyXrdsResolver]
+            IdpIdentifier Discovery2 LegacyXrdsResolver UrlHostMetaFetcher]
            [org.openid4java.message
             AuthRequest ParameterList]
            org.openid4java.consumer.ConsumerManager
