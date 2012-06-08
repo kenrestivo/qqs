@@ -29,7 +29,9 @@ A workflow for cemerick's [friend authentication system](http://github.com/cemer
 
 ## Status
 
-It works, I'm going to use it in a production app soon.
+There's an demo using this workflow, up on [http://young-cloud-3820.herokuapp.com/](http://young-cloud-3820.herokuapp.com/). You can try it if you have an account on a Google Apps domain.
+
+It works well enough that I'm going to use it in a production app soon.
 
 See the TODO-qqs.org file for moar.
 
