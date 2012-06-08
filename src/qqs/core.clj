@@ -1,6 +1,7 @@
 (ns qqs.core
   (:require [cemerick.friend :as friend]
             [cemerick.friend.workflows :as workflows]
+            [clojure.string :as string]
             ring.util.response)
   (:use [cemerick.friend.util :only (gets)])
   (:import [com.google.step2
@@ -101,7 +102,8 @@
 
 (defn- handle-init
   [domain {:keys [session] :as request}]
-  (let [return-url (#'friend/original-url
+  (let [domain (string/replace domain #"(.*[/@])?(.+)" "$2")
+        return-url (#'friend/original-url
                     (assoc request :query-string
                            (str (name return-key) "=1")))
         auth-req (gen-auth-url domain return-url)]
