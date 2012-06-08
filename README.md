@@ -33,7 +33,7 @@ It's QQS, quick-quick-slow, the Texas 2-Step.
 
 It works, I'm going to use it in a production app soon.
 
-It needs moar work, see the TODO-qqs.org file.
+See the TODO-qqs.org file for moar.
 
 ## License
 
