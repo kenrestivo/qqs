@@ -119,7 +119,13 @@
   (fn [{:keys [uri request-method params session] :as request}]
     (when (= uri step2-uri)
       (cond
-       (contains? params domain-param) (handle-init (domain-param params) request)
+       (contains? params domain-param)
+       (try
+         (handle-init (domain-param params) request)
+         (catch Exception e
+           (.printStackTrace e)
+           (ring.util.response/redirect
+            (-> request ::friend/auth-config :unauthorized-uri))))
        (contains? params return-key)
        (if-let [auth-map
                 (handle-return (assoc request :params params) step2-config)]
