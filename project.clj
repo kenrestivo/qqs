@@ -5,6 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [com.cemerick/friend "0.0.8"]
+                 ;; TODO: build a non-snapshot release so I can make this a release
                  [com.google.step2/step2-consumer "1-SNAPSHOT"]
                  ;; to force around a bug in httpclient 4.1.x [0]
                  [org.apache.httpcomponents/httpclient "[4.2-beta1]"]]

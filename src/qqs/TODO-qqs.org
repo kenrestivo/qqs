@@ -1,0 +1,6 @@
+TODO for QQS
+
+* TODO build a non-snapshot release of google step2 java lib, so I can make this a release
+* TODO put step2 on clojars or somewhere more permanent
+* TODO test suite
+
