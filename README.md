@@ -6,19 +6,24 @@ A workflow for cemerick's [friend authentication system](http://github.com/cemer
 
 * Set up friend per its instructions
 * Add QQS to your project.clj :dependencies:
+
 ```clojure
 [qqs "0.1.0-SNAPSHOT"]
 ```
+
 * Write a credentials function to check the incoming credentials against some database.
   There's an example step2-creds function in test/qqs/core_test.clj.
 * Add a workflow
+
 ```clojure
 (:require [qqs.core :as qqs] )
 ;;; ...
 {:workflows
 [(qqs/workflow :credential-fn somewhere/step2-creds)]
-* Be sure to hit the step2-uri page with the domain, i.e. "/step2?domain=mydomain.com", otherwise it will login-failure on you.
 ```
+
+* Be sure to hit the step2-uri page with the domain, i.e. "/step2?domain=mydomain.com", otherwise it will login-failure on you.
+
 
 ## The name?
 
