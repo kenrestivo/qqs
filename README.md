@@ -37,6 +37,8 @@ There's an demo using this workflow, up on [http://young-cloud-3820.herokuapp.co
 
 It works well enough that I'm going to use it in a production app soon.
 
+I wasn't concerned with using all the other features that Step2 claims to have; all I needed was the ability to log people in on a corporate intranet that is hosted with Google Apps... so that's all this does for now.
+
 See the TODO-qqs.org file for moar.
 
 ## The name?
