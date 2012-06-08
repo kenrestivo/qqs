@@ -1,4 +1,4 @@
-(defproject qqs "0.1.0"
+(defproject qqs "0.1.0-SNAPSHOT"
   :description "A friend workflow for Google Apps login using Step2 library."
   :url "http://github.com/kenrestivo/qqs"
   :license {:name "Eclipse Public License"
