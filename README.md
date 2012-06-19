@@ -8,7 +8,7 @@ A workflow for cemerick's [friend authentication system](http://github.com/cemer
 * Add QQS to your project.clj :dependencies:
 
 ```clojure
-[qqs "0.1.1"]
+[qqs "0.1.2"]
 ```
 
 * Write a credentials function to check the incoming credentials against some database.
