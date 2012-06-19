@@ -15,28 +15,26 @@
            [com.google.step2.xmlsimplesign
             Verifier CachedCertPathValidator
             DefaultTrustRootsProvider DefaultCertValidator]))
-  
+
 
 
 
 (def ^{:private true} return-key :auth_return)
 
-(def ^{:private true}  goog-partial-url
-  "https://www.google.com/accounts/o8/.well-known/host-meta?hd=")
-
-
+(defn-  goog-partial-url [host]
+  (str "https://www.google.com/accounts/o8/.well-known/host-meta?hd=" host))
 
 
 ;;;  ConsumerManager must be persistent and stateful throughout life of servlet?
 (def con-helper
   (ConsumerHelper.
-   (ConsumerManager.)  
+   (ConsumerManager.)
    (Discovery2.
     (proxy [com.google.step2.discovery.UrlHostMetaFetcher]
         [(DefaultHttpFetcher.)]
       (getHostMetaUriForHost [host]
         (java.net.URI.
-         (str goog-partial-url host))))    
+         (goog-partial-url host))))
     (LegacyXrdsResolver.
      (DefaultHttpFetcher.)
      (Verifier.
@@ -60,7 +58,7 @@
                "firstName" "http://axschema.org/namePerson/first" true)
               (.requestAxAttribute
                "lastName" "http://axschema.org/namePerson/last" true))
-        ar (doto (.generateRequest arh) 
+        ar (doto (.generateRequest arh)
              ;; google requires realm to = return url
              (.setRealm  return-url))]
     ;; and here is the url at last!!
@@ -84,19 +82,19 @@
        :emails (seq (.getAxFetchAttributeValues  arh "email"))
        :first-name (str (.getAxFetchAttributeValue  arh "firstName"))
        :last-name (str (.getAxFetchAttributeValue  arh "lastName"))))))
-       
+
 
 ;; this feels like a hack. exception handling needs more thought.
 (defmacro wrap-failure
   [request step2-config & body]
   `(try
-     ~@body 
+     ~@body
      (catch Exception e#
        (.printStackTrace e#)
        ((gets :login-failure-handler ~step2-config
               (::friend/auth-config ~request))
         ~request))))
-      
+
 
 (defn handle-return [{:keys [params session] :as request} step2-config]
   (let [di (::step2-disc session)
@@ -105,10 +103,9 @@
                (clojure.walk/stringify-keys params))
         arh (.verify con-helper return-url plist di)
         credentials (build-credentials arh)]
-    (or ((gets :credential-fn step2-config (::friend/auth-config request))
-         credentials)
-        ((gets :login-failure-handler step2-config (::friend/auth-config request))
-         request))))
+    ((gets :credential-fn step2-config (::friend/auth-config request))
+         credentials)))
+    
 
 
 
@@ -154,10 +151,3 @@
            (update-in request [::friend/auth-config] merge step2-config))))
        ;; TODO correct response code?
        :else (login-failure-handler request)))))
-       
-
-
-
-
-
-  
