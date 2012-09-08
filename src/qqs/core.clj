@@ -5,7 +5,8 @@
             ring.util.response)
   (:use [cemerick.friend.util :only (gets)])
   (:import [com.google.step2
-            AuthRequestHelper ConsumerHelper Step2]
+            AuthRequestHelper ConsumerHelper Step2
+            AuthResponseHelper$ResultType Step2$AxSchema]
            [com.google.step2.discovery
             IdpIdentifier SecureUrlIdentifier
             Discovery2 LegacyXrdsResolver UrlHostMetaFetcher
