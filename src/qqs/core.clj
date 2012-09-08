@@ -45,7 +45,7 @@
       (DefaultHttpFetcher.))
      (DefaultCertValidator. ))
     (HtmlResolver. (HttpFetcherFactory. ))
-    (YadisResolver. (DefaultHttpFetcher.))
+    (YadisResolver. (HttpFetcherFactory.))
     (LocalXriResolver.))))
 
 
