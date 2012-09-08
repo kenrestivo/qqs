@@ -58,11 +58,11 @@
                    return-url)
               (.requestUxIcon true)
               (.requestAxAttribute
-               "email" "http://axschema.org/contact/email" true 20)
+               "email" Step2$AxSchema/EMAIL true 20)
               (.requestAxAttribute
-               "firstName" "http://axschema.org/namePerson/first" true)
+               "firstName" Step2$AxSchema/FIRST_NAME true)
               (.requestAxAttribute
-               "lastName" "http://axschema.org/namePerson/last" true))
+               "lastName"  Step2$AxSchema/LAST_NAME true))
         ar (doto (.generateRequest arh)
              ;; google requires realm to = return url
              (.setRealm  return-url))]
