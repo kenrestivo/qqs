@@ -7,7 +7,14 @@
   (:import [com.google.step2
             AuthRequestHelper ConsumerHelper Step2]
            [com.google.step2.discovery
-            IdpIdentifier Discovery2 LegacyXrdsResolver UrlHostMetaFetcher]
+            IdpIdentifier SecureUrlIdentifier
+            Discovery2 LegacyXrdsResolver UrlHostMetaFetcher
+            DefaultHostMetaFetcher]
+           org.openid4java.discovery.UrlIdentifier
+           org.openid4java.discovery.yadis.YadisResolver
+           org.openid4java.discovery.html.HtmlResolver
+           org.openid4java.util.HttpFetcherFactory
+           org.openid4java.discovery.xri.LocalXriResolver
            [org.openid4java.message
             AuthRequest ParameterList]
            org.openid4java.consumer.ConsumerManager
@@ -30,18 +37,16 @@
   (ConsumerHelper.
    (ConsumerManager.)
    (Discovery2.
-    (proxy [com.google.step2.discovery.UrlHostMetaFetcher]
-        [(DefaultHttpFetcher.)]
-      (getHostMetaUriForHost [host]
-        (java.net.URI.
-         (goog-partial-url host))))
+    (DefaultHostMetaFetcher. (DefaultHttpFetcher.))
     (LegacyXrdsResolver.
      (DefaultHttpFetcher.)
      (Verifier.
       (CachedCertPathValidator. (DefaultTrustRootsProvider.))
       (DefaultHttpFetcher.))
      (DefaultCertValidator. ))
-    nil nil nil)))
+    (HtmlResolver. (HttpFetcherFactory. ))
+    (YadisResolver. (DefaultHttpFetcher.))
+    (LocalXriResolver.))))
 
 
 
@@ -104,8 +109,8 @@
         arh (.verify con-helper return-url plist di)
         credentials (build-credentials arh)]
     ((gets :credential-fn step2-config (::friend/auth-config request))
-         credentials)))
-    
+     credentials)))
+
 
 
 
