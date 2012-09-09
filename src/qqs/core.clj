@@ -79,7 +79,7 @@
 ;;(into {} (map #(vector (keyword %) (.getAxFetchAttributeValue  arh %)) attrs))
 ;; but for only two attributes, the repetition is clearer
 
-(defn build-credentials [arh]
+(defn build-credentials [^AuthRequestHelper arh]
   (let [result (.toString (.getAuthResultType  arh))]
     ;; TODO: throw an exception if result is not success
     (when (= result "AUTH_SUCCESS")
@@ -105,8 +105,8 @@
 (defn handle-return [{:keys [params session] :as request} step2-config]
   (let [di (::step2-disc session)
         return-url (#'friend/original-url request)
-        plist (ParameterList.
-               (clojure.walk/stringify-keys params))
+        ^ParameterList plist (ParameterList.
+                              (clojure.walk/stringify-keys params))
         arh (.verify con-helper return-url plist di)
         credentials (build-credentials arh)]
     ((gets :credential-fn step2-config (::friend/auth-config request))
