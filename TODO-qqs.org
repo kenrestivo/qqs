@@ -3,7 +3,6 @@ TODO for QQS
 * TODO put step2 on clojars or somewhere more permanent
 * TODO throw an exception if the .getAuthResultType is not success
 * TODO in general, throw a LOT more exeptions, for discovery failed, etc
-* TODO convince cemerick to accept https://github.com/cemerick/friend/pull/11
 * TODO test suite of some kind?
 ** hard to do with something so dependent on external service, accounts, logins
 

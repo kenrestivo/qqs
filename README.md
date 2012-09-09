@@ -8,7 +8,7 @@ A workflow for cemerick's [friend authentication system](http://github.com/cemer
 * Add QQS to your project.clj :dependencies:
 
 ```clojure
-[qqs "0.1.2"]
+[qqs "0.1.3"]
 ```
 
 * Write a credentials function to check the incoming credentials against some database.
@@ -28,16 +28,15 @@ A workflow for cemerick's [friend authentication system](http://github.com/cemer
  })
 ```
 
-* Be sure to hit the step2-uri page with the domain, i.e. "/step2?domain=mydomain.com", and to use an actual Google Apps account (not Gmail), otherwise it will login-failure on you.
+* Be sure to hit the step2-uri page with the domain, i.e. "/step2?domain=mydomain.com".
+* If you use the domain "google.com", or anything ending in "google.com", it'll do a regular OpenID lookup, using Google's login screen. This way, sites that want to allow multiple Google Apps domains can have one login screen.
 
 
 ## Status
 
 There's an demo using this workflow, up on [http://young-cloud-3820.herokuapp.com/](http://young-cloud-3820.herokuapp.com/). You can try it if you have an account on a Google Apps domain.
 
-It works well enough that I'm going to use it in a production app soon.
-
-I wasn't concerned with using all the other features that Step2 claims to have; all I needed was the ability to log people in on a corporate intranet that is hosted with Google Apps... so that's all this does for now.
+It is in use, in production at the moment.
 
 See the TODO-qqs.org file for moar.
 
