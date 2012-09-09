@@ -5,9 +5,17 @@
             ring.util.response)
   (:use [cemerick.friend.util :only (gets)])
   (:import [com.google.step2
-            AuthRequestHelper ConsumerHelper Step2]
+            AuthRequestHelper ConsumerHelper Step2
+            AuthResponseHelper$ResultType Step2$AxSchema]
            [com.google.step2.discovery
-            IdpIdentifier Discovery2 LegacyXrdsResolver UrlHostMetaFetcher]
+            IdpIdentifier SecureUrlIdentifier
+            Discovery2 LegacyXrdsResolver UrlHostMetaFetcher
+            DefaultHostMetaFetcher]
+           org.openid4java.discovery.UrlIdentifier
+           org.openid4java.discovery.yadis.YadisResolver
+           org.openid4java.discovery.html.HtmlResolver
+           org.openid4java.util.HttpFetcherFactory
+           org.openid4java.discovery.xri.LocalXriResolver
            [org.openid4java.message
             AuthRequest ParameterList]
            org.openid4java.consumer.ConsumerManager
@@ -26,7 +34,7 @@
 
 
 ;;;  ConsumerManager must be persistent and stateful throughout life of servlet?
-(def con-helper
+(def ^ConsumerHelper con-helper
   (ConsumerHelper.
    (ConsumerManager.)
    (Discovery2.
@@ -41,26 +49,29 @@
       (CachedCertPathValidator. (DefaultTrustRootsProvider.))
       (DefaultHttpFetcher.))
      (DefaultCertValidator. ))
-    nil nil nil)))
+    (HtmlResolver. (HttpFetcherFactory. ))
+    (YadisResolver. (HttpFetcherFactory.))
+    (LocalXriResolver.))))
 
 
 
 
 (defn gen-auth-url [domain return-url]
-  (let [arh (doto (.getAuthRequestHelper
-                   con-helper
-                   (IdpIdentifier. domain)
-                   return-url)
-              (.requestUxIcon true)
-              (.requestAxAttribute
-               "email" "http://axschema.org/contact/email" true 20)
-              (.requestAxAttribute
-               "firstName" "http://axschema.org/namePerson/first" true)
-              (.requestAxAttribute
-               "lastName" "http://axschema.org/namePerson/last" true))
-        ar (doto (.generateRequest arh)
-             ;; google requires realm to = return url
-             (.setRealm  return-url))]
+  (let [^AuthRequestHelper arh
+        (doto (.getAuthRequestHelper
+               con-helper
+               (IdpIdentifier. domain)
+               return-url)
+          (.requestUxIcon true)
+          (.requestAxAttribute
+           "email" (.getUri Step2$AxSchema/EMAIL) true 20)
+          (.requestAxAttribute
+           "firstName" (.getUri Step2$AxSchema/FIRST_NAME) true)
+          (.requestAxAttribute
+           "lastName"  (.getUri Step2$AxSchema/LAST_NAME) true))
+        ^AuthRequest ar (doto (.generateRequest arh)
+                          ;; google requires realm to = return url
+                          (.setRealm  return-url))]
     ;; and here is the url at last!!
     (hash-map
      :url (.getDestinationUrl ar true)
@@ -73,7 +84,7 @@
 ;;(into {} (map #(vector (keyword %) (.getAxFetchAttributeValue  arh %)) attrs))
 ;; but for only two attributes, the repetition is clearer
 
-(defn build-credentials [arh]
+(defn build-credentials [^AuthRequestHelper arh]
   (let [result (.toString (.getAuthResultType  arh))]
     ;; TODO: throw an exception if result is not success
     (when (= result "AUTH_SUCCESS")
@@ -99,21 +110,30 @@
 (defn handle-return [{:keys [params session] :as request} step2-config]
   (let [di (::step2-disc session)
         return-url (#'friend/original-url request)
-        plist (ParameterList.
-               (clojure.walk/stringify-keys params))
+        ^ParameterList plist (ParameterList.
+                              (clojure.walk/stringify-keys params))
         arh (.verify con-helper return-url plist di)
         credentials (build-credentials arh)]
     ((gets :credential-fn step2-config (::friend/auth-config request))
-         credentials)))
-    
+     credentials)))
 
+
+(defn- munge-domain
+  "Hack to allow regular OpenID auth for non-GoogleApps domains
+   if you give it google.com or similar instead of a domain."
+  [domain]
+  (let [domain (string/replace domain #"(.*[/@])?(.+)" "$2")]
+    (case domain
+      "google.com" "https://www.google.com/accounts/o8/id"
+      ;; could put yahoo or others in here
+      domain)))
 
 
 (defn- handle-init
   [domain step2-config {:keys [session] :as request}]
   (wrap-failure
    request step2-config
-   (let [domain (string/replace domain #"(.*[/@])?(.+)" "$2")
+   (let [domain (munge-domain domain)
          return-url (#'friend/original-url
                      (assoc request :query-string
                             (str (name return-key) "=1")))
