@@ -118,13 +118,22 @@
      credentials)))
 
 
+(defn- munge-domain
+  "Hack to allow regular OpenID auth for non-GoogleApps domains
+   if you give it google.com or similar instead of a domain."
+  [domain]
+  (let [domain (string/replace domain #"(.*[/@])?(.+)" "$2")]
+    (case domain
+      "google.com" "https://www.google.com/accounts/o8/id"
+      ;; could put yahoo or others in here
+      domain)))
 
 
 (defn- handle-init
   [domain step2-config {:keys [session] :as request}]
   (wrap-failure
    request step2-config
-   (let [domain (string/replace domain #"(.*[/@])?(.+)" "$2")
+   (let [domain (munge-domain domain)
          return-url (#'friend/original-url
                      (assoc request :query-string
                             (str (name return-key) "=1")))
