@@ -34,7 +34,7 @@
 
 
 ;;;  ConsumerManager must be persistent and stateful throughout life of servlet?
-(def con-helper
+(def ^ConsumerHelper con-helper
   (ConsumerHelper.
    (ConsumerManager.)
    (Discovery2.
@@ -53,20 +53,20 @@
 
 
 (defn gen-auth-url [domain return-url]
-  (let [arh (doto (.getAuthRequestHelper
-                   con-helper
-                   (IdpIdentifier. domain)
-                   return-url)
-              (.requestUxIcon true)
-              (.requestAxAttribute
-               "email" Step2$AxSchema/EMAIL true 20)
-              (.requestAxAttribute
-               "firstName" Step2$AxSchema/FIRST_NAME true)
-              (.requestAxAttribute
-               "lastName"  Step2$AxSchema/LAST_NAME true))
-        ar (doto (.generateRequest arh)
-             ;; google requires realm to = return url
-             (.setRealm  return-url))]
+  (let [^AuthRequestHelper arh (doto (.getAuthRequestHelper
+                                      con-helper
+                                      (IdpIdentifier. domain)
+                                      return-url)
+                                 (.requestUxIcon true)
+                                 (.requestAxAttribute
+                                  "email" Step2$AxSchema/EMAIL true 20)
+                                 (.requestAxAttribute
+                                  "firstName" Step2$AxSchema/FIRST_NAME true)
+                                 (.requestAxAttribute
+                                  "lastName"  Step2$AxSchema/LAST_NAME true))
+        ^AuthRequest ar (doto (.generateRequest arh)
+                          ;; google requires realm to = return url
+                          (.setRealm  return-url))]
     ;; and here is the url at last!!
     (hash-map
      :url (.getDestinationUrl ar true)
