@@ -53,17 +53,18 @@
 
 
 (defn gen-auth-url [domain return-url]
-  (let [^AuthRequestHelper arh (doto (.getAuthRequestHelper
-                                      con-helper
-                                      (IdpIdentifier. domain)
-                                      return-url)
-                                 (.requestUxIcon true)
-                                 (.requestAxAttribute
-                                  "email" Step2$AxSchema/EMAIL true 20)
-                                 (.requestAxAttribute
-                                  "firstName" Step2$AxSchema/FIRST_NAME true)
-                                 (.requestAxAttribute
-                                  "lastName"  Step2$AxSchema/LAST_NAME true))
+  (let [^AuthRequestHelper arh
+        (doto (.getAuthRequestHelper
+               con-helper
+               (IdpIdentifier. domain)
+               return-url)
+          (.requestUxIcon true)
+          (.requestAxAttribute
+           "email" (.getUri Step2$AxSchema/EMAIL) true 20)
+          (.requestAxAttribute
+           "firstName" (.getUri Step2$AxSchema/FIRST_NAME) true)
+          (.requestAxAttribute
+           "lastName"  (.getUri Step2$AxSchema/LAST_NAME) true))
         ^AuthRequest ar (doto (.generateRequest arh)
                           ;; google requires realm to = return url
                           (.setRealm  return-url))]
