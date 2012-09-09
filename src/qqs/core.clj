@@ -38,7 +38,11 @@
   (ConsumerHelper.
    (ConsumerManager.)
    (Discovery2.
-    (DefaultHostMetaFetcher. (DefaultHttpFetcher.))
+    (proxy [com.google.step2.discovery.UrlHostMetaFetcher]
+        [(DefaultHttpFetcher.)]
+      (getHostMetaUriForHost [host]
+        (java.net.URI.
+         (goog-partial-url host))))
     (LegacyXrdsResolver.
      (DefaultHttpFetcher.)
      (Verifier.
